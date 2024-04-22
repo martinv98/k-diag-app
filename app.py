@@ -1,14 +1,22 @@
-from flask import Flask, jsonify
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from config import Config
 
-app = Flask(__name__)
-CORS(app)
-
-
-@app.route('/')
-def home():
-    return jsonify({'message': 'Hello from Flask!'})
+db = SQLAlchemy()
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    CORS(app)
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    from routes import init_routes
+    init_routes(app)
+
+    return app
