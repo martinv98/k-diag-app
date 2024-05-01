@@ -5,6 +5,7 @@ from app import db
 from models import User
 from flask import request
 import bcrypt
+import os
 
 
 def init_routes(app):
@@ -35,3 +36,21 @@ def init_routes(app):
         users = User.query.all()
         user_data = [{'id': user.id, 'username': user.username} for user in users]
         return jsonify(user_data)
+
+    UPLOAD_FOLDER = 'dicoms/'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+    @app.route('/upload_scan', methods=['POST'])
+    def upload_scan():
+        if 'file' not in request.files:
+            return 'No file part', 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return 'No selected file', 400
+
+        # Here you can save the file or process it as needed
+        # For example, save it to a specific directory:
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+
+        return 'File uploaded successfully', 200
