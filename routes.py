@@ -16,8 +16,11 @@ def init_routes(app):
     @app.route('/user/register', methods=['POST'])
     def register_user():
         data = request.json
-        new_user = User(username=data['username'], email=data.get('email'),
-                        password=bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()))
+        existing_user = User.query.filter_by(username=data['username']).first()
+        if existing_user:
+            return jsonify({'message': 'Username already exists'}), 400
+        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+        new_user = User(username=data['username'], email=data.get('email'), password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         return jsonify(new_user.to_dict()), 200
@@ -26,8 +29,10 @@ def init_routes(app):
     def login_user():
         data = request.json
         user = User.query.filter_by(username=data['username']).first()
-        if user and bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-            return jsonify({user}), 200
+        if user and bcrypt.checkpw(data['password'].encode('utf-8'), user.password):
+            print("Login successful. Username in DB: " + user.username + " Hashed password in DB: " + user.password.decode('utf-8'))
+            print("Username from FE: " + data['username'] + " Password from FE: " + data['password'])
+            return jsonify({'message': 'Login successful'}), 200
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
 
