@@ -53,4 +53,4 @@ def init_routes(app):
         # For example, save it to a specific directory:
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
 
-        return 'File uploaded successfully', 200
+        return jsonify({'message': 'File uploaded successfully'}), 200
