@@ -15,6 +15,7 @@ def create_app():
 
     with app.app_context():
         from models import User
+        from models import File
         db.create_all()
 
     from routes import init_routes
