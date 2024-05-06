@@ -2,7 +2,7 @@ import json
 
 from flask import jsonify
 from app import db
-from models import User, File
+from models import User, CTScan, Mask, Instance
 from flask import request
 import bcrypt
 import os
@@ -23,7 +23,7 @@ def init_routes(app):
         new_user = User(username=data['username'], email=data.get('email'), password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return jsonify(new_user.to_dict()), 200
+        return jsonify({'username': data['username']}), 200
 
     @app.route('/user/login', methods=['POST'])
     def login_user():
@@ -69,11 +69,11 @@ def init_routes(app):
         if not user:
             return jsonify({'message': 'User not found'}), 404
 
-        fileDcom: File = File(filename=data['dcom'], type='dcom', user_id=user.id)
-        db.session.add(fileDcom)
+        file_dcom: CTScan = CTScan(filename=data['dcom'], metadataCT='dcom', userId=user.id)
+        db.session.add(file_dcom)
         db.session.commit()
-        fileMask: File = File(filename=data['mask'], type='mask', user_id=user.id)
-        db.session.add(fileMask)
+        file_mask: Mask = Mask(filename=data['mask'], metadataMask='mask', userId=user.id)
+        db.session.add(file_mask)
         db.session.commit()
 
         return jsonify({'message': 'File uploaded successfully'}), 200

@@ -15,7 +15,9 @@ def create_app():
 
     with app.app_context():
         from models import User
-        from models import File
+        from models import CTScan
+        from models import Mask
+        from models import Instance
         db.create_all()
 
     from routes import init_routes
