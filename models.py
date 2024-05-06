@@ -48,10 +48,10 @@ class Instance(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'), nullable=True)
     ctId = db.Column(db.Integer, db.ForeignKey('ctscan.ctId'), nullable=True)
     maskId = db.Column(db.Integer, db.ForeignKey('mask.maskId'), nullable=True)
-    user = db.relationship('User', backref=db.backref('instance', lazy=True))
     result = db.Column(db.Boolean, nullable=True)
     resultAccuracy = db.Column(db.Float, nullable=True)
     resultString = db.Column(db.String(10000), nullable=True)
+    user = db.relationship('User', backref=db.backref('instance', lazy=True))
 
     def to_dict(self):
         return {
