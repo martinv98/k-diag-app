@@ -2,7 +2,7 @@ import json
 
 from flask import jsonify
 from app import db
-from models import User
+from models import User, File
 from flask import request
 import bcrypt
 import os
@@ -32,7 +32,7 @@ def init_routes(app):
         if user and bcrypt.checkpw(data['password'].encode('utf-8'), user.password):
             print("Login successful. Username in DB: " + user.username + " Hashed password in DB: " + user.password.decode('utf-8'))
             print("Username from FE: " + data['username'] + " Password from FE: " + data['password'])
-            return jsonify({'message': 'Login successful'}), 200
+            return jsonify({'username': data['username']}), 200
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
 
@@ -57,5 +57,23 @@ def init_routes(app):
         # Here you can save the file or process it as needed
         # For example, save it to a specific directory:
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+
+        return jsonify({'message': 'File uploaded successfully'}), 200
+
+    @app.route('/finish_upload', methods=['POST'])
+    def finish_upload():
+        data = request.json
+        print(data)
+
+        user = User.query.filter_by(username=data['username']).first()
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+
+        fileDcom: File = File(filename=data['dcom'], type='dcom', user_id=user.id)
+        db.session.add(fileDcom)
+        db.session.commit()
+        fileMask: File = File(filename=data['mask'], type='mask', user_id=user.id)
+        db.session.add(fileMask)
+        db.session.commit()
 
         return jsonify({'message': 'File uploaded successfully'}), 200

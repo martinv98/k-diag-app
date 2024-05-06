@@ -13,3 +13,18 @@ class User(db.Model):
             'email': self.email,
             'password': self.password
         }
+
+
+class File(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    filename = db.Column(db.String(80), unique=True, nullable=False)
+    type = db.Column(db.String(80), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('files', lazy=True))
+
+    def to_dict(self):
+        return {
+            'filename': self.filename,
+            'user_id': self.user_id,
+            'type': self.type
+        }
