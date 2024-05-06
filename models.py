@@ -3,7 +3,7 @@ from app import db
 
 class User(db.Model):
     __tablename__ = 'user'
-    userId = db.Column(db.Integer, unique=True, primary_key=True)
+    userId = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
     password = db.Column(db.String(80), nullable=False)
@@ -18,9 +18,9 @@ class User(db.Model):
 
 class CTScan(db.Model):
     __tablename__ = 'ctscan'
-    ctId = db.Column(db.Integer, unique=True, primary_key=True)
-    filename = db.Column(db.String(80), nullable=False)
-    metadataCT = db.Column(db.String(10000), nullable=False)
+    ctId = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
+    filename = db.Column(db.String(80), nullable=True)
+    metadataCT = db.Column(db.String(10000), nullable=True)
 
     def to_dict(self):
         return {
@@ -31,9 +31,9 @@ class CTScan(db.Model):
 
 class Mask(db.Model):
     __tablename__ = 'mask'
-    maskId = db.Column(db.Integer, unique=True, primary_key=True)
-    filename = db.Column(db.String(80), nullable=False)
-    metadataMask = db.Column(db.String(10000), nullable=False)
+    maskId = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
+    filename = db.Column(db.String(80), nullable=True)
+    metadataMask = db.Column(db.String(10000), nullable=True)
 
     def to_dict(self):
         return {
@@ -45,10 +45,13 @@ class Mask(db.Model):
 class Instance(db.Model):
     __tablename__ = 'instance'
     instanceId = db.Column(db.Integer, unique=True, primary_key=True)
-    userId = db.Column(db.Integer, db.ForeignKey('user.userId'), nullable=False)
-    ctId = db.Column(db.Integer, db.ForeignKey('ctscan.ctId'), nullable=False)
-    maskId = db.Column(db.Integer, db.ForeignKey('mask.maskId'), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'), nullable=True)
+    ctId = db.Column(db.Integer, db.ForeignKey('ctscan.ctId'), nullable=True)
+    maskId = db.Column(db.Integer, db.ForeignKey('mask.maskId'), nullable=True)
     user = db.relationship('User', backref=db.backref('instance', lazy=True))
+    result = db.Column(db.Boolean, nullable=True)
+    resultAccuracy = db.Column(db.Float, nullable=True)
+    resultString = db.Column(db.String(10000), nullable=True)
 
     def to_dict(self):
         return {
