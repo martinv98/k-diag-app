@@ -6,6 +6,7 @@ from models import User, CTScan, Mask, Instance
 from flask import request
 import bcrypt
 import os
+import random
 
 
 def init_routes(app):
@@ -76,11 +77,12 @@ def init_routes(app):
         db.session.add(file_mask)
         db.session.commit()
 
-        instance = Instance(userId=user.userId, ctId=file_dcom.ctId, maskId=file_mask.maskId)
+        result = bool(random.getrandbits(1))
+        accuracy = random.uniform(30, 70)
+        instance = Instance(userId=user.userId, ctId=file_dcom.ctId, maskId=file_mask.maskId, result=result, resultAccuracy=accuracy)
         db.session.add(instance)
         db.session.commit()
-
-        return jsonify({'message': 'File uploaded successfully'}), 200
+        return jsonify({'message': 'File uploaded successfully', 'result': result, 'accuracy': accuracy}), 200
 
     @app.route('/get_instances/<username>', methods=['GET'])
     def get_instances(username):
