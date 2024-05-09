@@ -31,7 +31,9 @@ def init_routes(app):
         data = request.json
         user = User.query.filter_by(username=data['username']).first()
         if user and bcrypt.checkpw(data['password'].encode('utf-8'), user.password):
-            print("Login successful. Username in DB: " + user.username + " Hashed password in DB: " + user.password.decode('utf-8'))
+            print(
+                "Login successful. Username in DB: " + user.username + " Hashed password in DB: " + user.password.decode(
+                    'utf-8'))
             print("Username from FE: " + data['username'] + " Password from FE: " + data['password'])
             return jsonify({'username': data['username']}), 200
         else:
@@ -79,16 +81,18 @@ def init_routes(app):
 
         result = bool(random.getrandbits(1))
         accuracy = random.uniform(30, 70)
-        instance = Instance(userId=user.userId, ctId=file_dcom.ctId, maskId=file_mask.maskId, result=result, resultAccuracy=accuracy)
+        instance = Instance(userId=user.userId, ctId=file_dcom.ctId, maskId=file_mask.maskId, result=result,
+                            resultAccuracy=accuracy)
         db.session.add(instance)
         db.session.commit()
         return jsonify({'message': 'File uploaded successfully', 'result': result, 'accuracy': accuracy}), 200
 
     @app.route('/get_instances/<username>', methods=['GET'])
     def get_instances(username):
-            user = User.query.filter_by(username=username).first()
-            if not user:
-                return jsonify({'message': 'User not found'}), 404
-            instances = Instance.query.filter_by(userId=user.userId).all()
-            instance_data = [{'ctId': instance.ctId, 'maskId': instance.maskId} for instance in instances]
-            return jsonify(instance_data)
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+        instances = Instance.query.filter_by(userId=user.userId).all()
+        instance_data = [{'ctId': instance.ctId, 'maskId': instance.maskId, 'accuracy': instance.resultAccuracy,
+                          'result': instance.result} for instance in instances]
+        return jsonify(instance_data)
